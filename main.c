@@ -104,7 +104,6 @@ APP_TIMER_DEF(m_mpu_send_timer_id);
 #if defined(APP_TIMER_SAMPLING) && APP_TIMER_SAMPLING == 1
 #define TICKS_SAMPLING_INTERVAL APP_TIMER_TICKS(1000)
 APP_TIMER_DEF(m_sampling_timer_id);
-static bool m_timer = false;
 static uint16_t m_samples;
 #endif
 #define APP_FEATURE_NOT_SUPPORTED BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2 /**< Reply when unsupported features are requested. */
@@ -167,7 +166,12 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name) {
 #if defined(APP_TIMER_SAMPLING) && APP_TIMER_SAMPLING == 1
 static void m_sampling_timeout_handler(void *p_context) {
   UNUSED_PARAMETER(p_context);
-  m_timer = true;
+  #if defined(APP_TIMER_SAMPLING) && APP_TIMER_SAMPLING == 1
+#if LOG_LOW_DETAIL == 1
+      NRF_LOG_INFO("SAMPLE RATE = %dHz \r\n", m_samples);
+#endif
+      m_samples = 0;
+#endif
 }
 #endif
 #if (defined(MPU60x0) || defined(MPU9150) || defined(MPU9250) || defined(MPU9255))
@@ -541,7 +545,7 @@ static void ble_stack_init(void) {
 
   // Configure number of custom UUIDS.
   memset(&ble_cfg, 0, sizeof(ble_cfg));
-  ble_cfg.common_cfg.vs_uuid_cfg.vs_uuid_count = 1;
+  ble_cfg.common_cfg.vs_uuid_cfg.vs_uuid_count = 1; //2?
   err_code = sd_ble_cfg_set(BLE_COMMON_CFG_VS_UUID, &ble_cfg, ram_start);
   APP_ERROR_CHECK(err_code);
 
@@ -716,13 +720,19 @@ void mpu_setup(void) {
 void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
   UNUSED_PARAMETER(pin);
   UNUSED_PARAMETER(action);
-  get_eeg_voltage_array(&m_eeg);
+  if (m_connected) {
+    get_eeg_voltage_array(&m_eeg);
+  }
 #if defined(APP_TIMER_SAMPLING) && APP_TIMER_SAMPLING == 1
   m_samples += 1;
 #endif
-  if (m_eeg.eeg_ch1_count == 246) {
+  if (m_eeg.eeg_ch1_count == 246/*246*/) {
+//    uint8_t c_counter;
     m_eeg.eeg_ch1_count = 0;
     ble_eeg_update_1ch_v2(&m_eeg);
+//    for(c_counter=0; c_counter<4; c_counter++) {
+//        ble_eeg_update_1ch_v3(&m_eeg, c_counter);
+//    }
   }
 }
 
@@ -799,7 +809,6 @@ int main(void) {
 #if (defined(MPU60x0) || defined(MPU9150) || defined(MPU9250) || defined(MPU9255))
   mpu_setup();
 #endif
-
   // Start execution.
   application_timers_start();
   advertising_start();
@@ -809,21 +818,11 @@ int main(void) {
   nrf_gpio_pin_clear(LED_2); // Green
   nrf_gpio_pin_set(LED_1);   //Blue
 #endif
-
 #if defined(APP_TIMER_SAMPLING) && APP_TIMER_SAMPLING == 1
   m_samples = 0;
 #endif
   // Enter main loop
   for (;;) {
-#if defined(APP_TIMER_SAMPLING) && APP_TIMER_SAMPLING == 1
-    if (m_timer) {
-      m_timer = false;
-#if LOG_LOW_DETAIL == 1
-      NRF_LOG_INFO("SAMPLE RATE = %dHz \r\n", m_samples);
-#endif
-      m_samples = 0;
-    }
-#endif
 #if NRF_LOG_ENABLED == 1
     if (!NRF_LOG_PROCESS()) {
       wait_for_event();

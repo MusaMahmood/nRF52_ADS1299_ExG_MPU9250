@@ -43,6 +43,7 @@ uint8_t ads1299_default_registers[] = {
  */
 
 static const nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(0);
+static uint8_t rx_data[6];
 static volatile bool spi_xfer_done;
 static volatile bool b;
 static volatile bool c;
@@ -272,25 +273,25 @@ void ads1299_init_regs(void) {
  *          
  */
 void get_eeg_voltage_array(ble_eeg_t *p_eeg) {
-  spi_xfer_done = false; //cnt = 255;
-  b = false; c = false;
-//  uint8_t tx_data[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-  uint8_t rx_data[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}; //TRY 27 OR 15 BYTES
+  memset(rx_data, 0, 6); spi_xfer_done = false;
+  uint8_t cnt = 0;
   APP_ERROR_CHECK(nrf_drv_spi_transfer(&spi, NULL, 0, rx_data, 6));
-  while (!spi_xfer_done) {
-    __WFE();
-//    b = (rx_data[0] == 0xC0) && ((rx_data[1] | rx_data[2]) == 0);
-//    c = (rx_data[4]!=0x00) && (rx_data[5]!=0x00) || (rx_data[6]!=0x00);
+  __WFI();
+  while(!spi_xfer_done) {__WFE();}
+  if(((rx_data[0]+rx_data[1]+rx_data[2]) == 0xC0)) {
+    if((rx_data[4] + rx_data[5])!=0) {
+      p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[3];
+      p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[4];
+      p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[5];
+    }
   }
-//  if (b && c) {
-    p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[3];
-    p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[4];
-    p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[5];
-//  } else {
-//    p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = 0x7F;
-//    p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = 0xFF;
-//    p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = 0xFF;
+//  while (!spi_xfer_done) {__WFE();}
+//  if((rx_data[0] = 0xC0) && (rx_data[1]+rx_data[2])==0) {
+//    if((rx_data[4]+rx_data[5]!=0)) {
+//      p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[3];
+//      p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[4];
+//      p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[5];
+//    }
 //  }
-
-  NRF_LOG_INFO("DATA: 0x%X%X%X | 0x%X%X%X\r\n", rx_data[0], rx_data[1], rx_data[2], rx_data[3], rx_data[4], rx_data[5]);
+//  NRF_LOG_INFO("SET1: 0x%X%X%X\r\n", rx_data[3], rx_data[4], rx_data[5]);
 }
