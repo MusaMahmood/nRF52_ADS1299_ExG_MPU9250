@@ -2678,7 +2678,7 @@
 // <4=> Debug 
 
 #ifndef TWI_CONFIG_LOG_LEVEL
-#define TWI_CONFIG_LOG_LEVEL 3
+#define TWI_CONFIG_LOG_LEVEL 4
 #endif
 
 // <o> TWI_CONFIG_INFO_COLOR  - ANSI escape code prefix.
@@ -3072,7 +3072,7 @@
 #if  APP_TIMER_ENABLED
 
 #ifndef APP_TIMER_SAMPLING
-#define APP_TIMER_SAMPLING 0
+#define APP_TIMER_SAMPLING 1
 #endif
 
 // <o> APP_TIMER_CONFIG_RTC_FREQUENCY  - Configure RTC prescaler.
@@ -3155,7 +3155,7 @@
  
 
 #ifndef APP_TWI_ENABLED
-#define APP_TWI_ENABLED 1
+#define APP_TWI_ENABLED 0
 #endif
 
 // <e> APP_UART_ENABLED - app_uart - UART driver

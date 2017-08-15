@@ -75,10 +75,11 @@
 #include "nrf_gpio.h"
 #include "sensorsim.h"
 #include "softdevice_handler.h"
-
 #define NRF_LOG_MODULE_NAME "APP"
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
+#include "ble_mpu.h"
+ble_mpu_t m_mpu;
 
 #if defined(ADS1299)
 //TODO: ADS1299 Stuff:
@@ -92,18 +93,12 @@
 ble_eeg_t m_eeg;
 static bool m_connected = false;
 #endif
-#include "ble_mpu.h"
-ble_mpu_t m_mpu;
 
-#if defined(MPU9250) || defined(MPU9255)
-
+#if defined(MPU9250) || defined(MPU9255) //mpu_send_timeout_handler
+#include "app_mpu.h"
 #include "nrf_drv_twi.h"
-nrf_drv_twi_t m_twi_instance = NRF_DRV_TWI_INSTANCE(1);
-//static const nrf_drv_twi_t m_twi_instance = NRF_DRV_TWI_INSTANCE(1);
 APP_TIMER_DEF(m_mpu_send_timer_id);
 #define TICKS_MPU_SAMPLING_INTERVAL APP_TIMER_TICKS(32)
-#define MPU_TWI_SCL_PIN 21
-#define MPU_TWI_SDA_PIN 20
 #endif
 
 #if defined(APP_TIMER_SAMPLING) && APP_TIMER_SAMPLING == 1
@@ -114,10 +109,10 @@ static uint16_t m_samples;
 #endif
 #define APP_FEATURE_NOT_SUPPORTED BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2 /**< Reply when unsupported features are requested. */
 
-#define DEVICE_NAME "ExG 8kHz & MPU"          //"nRF52_EEG"         /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME "ExG 8kHz & MPU"    //"nRF52_EEG"         /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME "Potato Labs" /**< Manufacturer. Will be passed to Device Information Service. */
-#define APP_ADV_INTERVAL 300           /**< The advertising interval (in units of 0.625 ms. This value corresponds to 187.5 ms). */
-#define APP_ADV_TIMEOUT_IN_SECONDS 180 /**< The advertising timeout in units of seconds. */
+#define APP_ADV_INTERVAL 300            /**< The advertising interval (in units of 0.625 ms. This value corresponds to 187.5 ms). */
+#define APP_ADV_TIMEOUT_IN_SECONDS 180  /**< The advertising timeout in units of seconds. */
 
 #define MIN_CONN_INTERVAL MSEC_TO_UNITS(7.5, UNIT_1_25_MS) /**< Minimum acceptable connection interval (0.1 seconds). */
 #define MAX_CONN_INTERVAL MSEC_TO_UNITS(25, UNIT_1_25_MS)  /**< Maximum acceptable connection interval (0.2 second). */
@@ -147,9 +142,9 @@ static nrf_ble_gatt_t m_gatt;                            /**< GATT module instan
 static ble_uuid_t m_adv_uuids[] =
     {
         {BLE_UUID_BIOPOTENTIAL_EEG_MEASUREMENT_SERVICE, BLE_UUID_TYPE_BLE},
-//#if (defined(MPU60x0) || defined(MPU9150) || defined(MPU9250) || defined(MPU9255))
+        //#if (defined(MPU60x0) || defined(MPU9150) || defined(MPU9250) || defined(MPU9255))
         {BLE_UUID_MPU_SERVICE_UUID, BLE_UUID_TYPE_BLE},
-//#endif
+        //#endif
         {BLE_UUID_DEVICE_INFORMATION_SERVICE, BLE_UUID_TYPE_BLE}}; /**< Universally unique service identifiers. */
 
 static void advertising_start(void);
@@ -179,14 +174,16 @@ static void m_sampling_timeout_handler(void *p_context) {
 static void mpu_send_timeout_handler(void *p_context) {
   //DEPENDSS ON SAMPLING RATE
   //TODO: Don't use
-  accel_values_t accel_values;
-  gyro_values_t gyro_values;
-//  mpu_read_accel(&accel_values);
-//  mpu_read_gyro(&gyro_values);
-  combined_values_t combined_values = {
-      accel_values.x, accel_values.y, accel_values.z,
-      gyro_values.x, gyro_values.y, gyro_values.z};
-  ble_mpu_combined_update(&m_mpu, &combined_values);
+  mpu_read_accel_array(&m_mpu);
+  mpu_read_gyro_array(&m_mpu);
+  if(m_mpu.mpu_count == 240) {
+
+    ble_mpu_combined_update_v2(&m_mpu);
+  }
+//  combined_values_t combined_values = {
+//      accel_values.x, accel_values.y, accel_values.z,
+//      gyro_values.x, gyro_values.y, gyro_values.z};
+//  ble_mpu_combined_update(&m_mpu, &combined_values);
 }
 #endif /**@(defined(MPU60x0) || defined(MPU9150) || defined(MPU9255))*/
 
@@ -279,9 +276,9 @@ static void on_yys_evt(ble_yy_service_t     * p_yy_service,
  */
 static void services_init(void) {
   ble_eeg_service_init(&m_eeg);
-//#if (defined(MPU60x0) || defined(MPU9150) || defined(MPU9250) || defined(MPU9255))
+  //#if (defined(MPU60x0) || defined(MPU9150) || defined(MPU9250) || defined(MPU9255))
   ble_mpu_service_init(&m_mpu);
-//#endif
+  //#endif
   /**@Device Information Service:*/
   uint32_t err_code;
   ble_dis_init_t dis_init;
@@ -665,27 +662,27 @@ void twi_handler(nrf_drv_twi_evt_t const *p_event, void *p_context) {
   switch (p_event->type) {
   case NRF_DRV_TWI_EVT_DONE:
     // If EVT_DONE (event done) is received a device is found and responding on that particular address
-    NRF_LOG_INFO("\r\n!****************************!\r\nDevice found at 7-bit address: %#x!\r\n!****************************!\r\n\r\n");
+    NRF_LOG_WARNING("\r\n!****************************!\r\nDevice found at 7-bit address: 0x%x!\r\n!****************************!\r\n\r\n");
     //device_found = true;
     break;
   case NRF_DRV_TWI_EVT_ADDRESS_NACK:
-    NRF_LOG_INFO("No address ACK on address: %#x!\r\n");
+    NRF_LOG_ERROR("No address ACK on address: %#x!\r\n");
     break;
   case NRF_DRV_TWI_EVT_DATA_NACK:
-    NRF_LOG_INFO("No data ACK on address: %#x!\r\n");
+    NRF_LOG_ERROR("No data ACK on address: %#x!\r\n");
     break;
   default:
     break;
   }
   // Pass TWI events down to the MPU driver.
-//  mpu_twi_event_handler(p_event);
+  //  mpu_twi_event_handler(p_event);
   UNUSED_PARAMETER(p_context);
 }
 
 /**
  * @brief TWI initialization.
  * Nothing special here
- */
+ 
 void twi_setup(void) {
   ret_code_t err_code;
   const nrf_drv_twi_config_t twi_mpu_config = {
@@ -693,31 +690,28 @@ void twi_setup(void) {
       .sda = MPU_TWI_SDA_PIN, //MPU_TWI_SDA_PIN,
       .frequency = NRF_TWI_FREQ_400K,
       .interrupt_priority = APP_IRQ_PRIORITY_HIGH,
-      .clear_bus_init = false
-      };
+      .clear_bus_init = false};
   err_code = nrf_drv_twi_init(&m_twi_instance, &twi_mpu_config, twi_handler, NULL);
-  NRF_LOG_INFO("ERRCODE: nrf_drv_twi_init: %d \r\n", err_code);
+  NRF_LOG_RAW_INFO(" ERRCODE: nrf_drv_twi_init: %d \r\n", err_code);
+  NRF_LOG_FLUSH();
   if (NRF_SUCCESS == err_code)
-  nrf_drv_twi_enable(&m_twi_instance);
+    nrf_drv_twi_enable(&m_twi_instance);
   APP_ERROR_CHECK(err_code);
 }
-
-
-/*
+*/
+///*
 void mpu_setup(void) {
-  ret_code_t ret_code;
-  // Initiate MPU driver with TWI instance handler
-  ret_code = mpu_init(&m_twi_instance);
-  NRF_LOG_INFO("ERRCODE: mpu_init: %d \r\n", ret_code);
-  APP_ERROR_CHECK(ret_code); // Check for errors in return value
-
-  // Setup and configure the MPU with intial values
-  mpu_config_t p_mpu_config = MPU_DEFAULT_CONFIG(); // Load default values
-  p_mpu_config.smplrt_div = (32 - 1);               // Change sample rate. Sample Rate = Gyroscope Output Rate / (1 + SMPLRT_DIV). 19 gives a sample rate of 50Hz
-  p_mpu_config.accel_config.afs_sel = AFS_2G;       // Set accelerometer full scale range to 2G
-  ret_code = mpu_config(&p_mpu_config);             // Configure the MPU with above values
-  NRF_LOG_INFO("ERRCODE: mpu_config: %d \r\n", ret_code);
-  APP_ERROR_CHECK(ret_code); // Check for errors in return value
+    ret_code_t ret_code;
+    // Initiate MPU driver
+    ret_code = mpu_init();
+    APP_ERROR_CHECK(ret_code); // Check for errors in return value
+    
+    // Setup and configure the MPU with intial values
+    mpu_config_t p_mpu_config = MPU_DEFAULT_CONFIG(); // Load default values
+    p_mpu_config.smplrt_div = 19;   // Change sampelrate. Sample Rate = Gyroscope Output Rate / (1 + SMPLRT_DIV). 19 gives a sample rate of 50Hz
+    p_mpu_config.accel_config.afs_sel = AFS_2G; // Set accelerometer full scale range to 2G
+    ret_code = mpu_config(&p_mpu_config); // Configure the MPU with above values
+    APP_ERROR_CHECK(ret_code); // Check for errors in return value 
 }
 //*/
 #endif
@@ -757,14 +751,16 @@ static void ads1299_gpio_init(void) {
   if (!nrf_drv_gpiote_is_init()) {
     err_code = nrf_drv_gpiote_init();
   }
-  NRF_LOG_INFO("nrf_drv_gpiote_init: %d\r\n", err_code);
+  NRF_LOG_RAW_INFO(" nrf_drv_gpiote_init: %d\r\n", err_code);
+  NRF_LOG_FLUSH();
   APP_ERROR_CHECK(err_code);
   bool is_high_accuracy = true;
   nrf_drv_gpiote_in_config_t in_config = GPIOTE_CONFIG_IN_SENSE_HITOLO(is_high_accuracy);
   in_config.is_watcher = true;
   in_config.pull = NRF_GPIO_PIN_NOPULL;
   err_code = nrf_drv_gpiote_in_init(ADS1299_DRDY_PIN, &in_config, in_pin_handler);
-  NRF_LOG_INFO(" nrf_drv_gpiote_in_init: %d: \r\n", err_code);
+  NRF_LOG_RAW_INFO(" nrf_drv_gpiote_in_init: %d: \r\n", err_code);
+  NRF_LOG_FLUSH();
   APP_ERROR_CHECK(err_code);
   nrf_drv_gpiote_in_event_enable(ADS1299_DRDY_PIN, true);
   ads1299_powerdn();
@@ -803,18 +799,16 @@ int main(void) {
   ads1299_standby();
   nrf_delay_ms(10);
   m_eeg.eeg_ch1_count = 0;
+  m_mpu.mpu_count = 0;
 #endif
 #if (defined(MPU60x0) || defined(MPU9150) || defined(MPU9250) || defined(MPU9255))
-//  twi_setup();
-//  uint8_t dummy_data = 0x55;
-//  nrf_drv_twi_tx(&m_twi_instance, 0x68, &dummy_data, 1, false);
-//  nrf_delay_ms(12);
-//  mpu_setup();
+  mpu_setup();
 #endif
 
   // Start execution.
   application_timers_start();
   advertising_start();
+  NRF_LOG_RAW_INFO(" BLE Advertising Start! \r\n");NRF_LOG_FLUSH();
 #if defined(BOARD_EXG_V3)
   nrf_gpio_pin_clear(LED_2); // Green
   nrf_gpio_pin_set(LED_1);   //Blue
@@ -824,7 +818,6 @@ int main(void) {
   m_samples = 0;
 #endif
 
-  NRF_LOG_INFO(" BLE Advertising Start! \r\n");
   // Enter main loop.
   for (;;) {
 #if defined(APP_TIMER_SAMPLING) && APP_TIMER_SAMPLING == 1

@@ -56,9 +56,9 @@ static uint32_t ble_char_combined_add(ble_mpu_t *p_mpu) {
   memset(&attr_char_value, 0, sizeof(attr_char_value));
   attr_char_value.p_uuid = &char_uuid;
   attr_char_value.p_attr_md = &attr_md;
-  attr_char_value.max_len = sizeof(combined_values_t);
-  attr_char_value.init_len = sizeof(combined_values_t);
-  uint8_t value[12] = {0};
+  attr_char_value.max_len = 240;
+  attr_char_value.init_len = 0;
+  uint8_t value[240];
   attr_char_value.p_value = value;
   err_code = sd_ble_gatts_characteristic_add(p_mpu->service_handle,
       &char_md,
@@ -92,7 +92,7 @@ void ble_mpu_service_init(ble_mpu_t *p_mpu) {
   ble_char_combined_add(p_mpu);
 }
 #if (defined(MPU60x0) || defined(MPU9150) || defined(MPU9255) || defined(MPU9250))
-
+/*
 void ble_mpu_combined_update(ble_mpu_t *p_mpu, combined_values_t *combined_values) {
   if (p_mpu->conn_handle != BLE_CONN_HANDLE_INVALID) {
     uint16_t len = sizeof(combined_values_t);
@@ -108,68 +108,21 @@ void ble_mpu_combined_update(ble_mpu_t *p_mpu, combined_values_t *combined_value
     sd_ble_gatts_hvx(p_mpu->conn_handle, &hvx_params);
   }
 }
+//*/
 
-// Function to be called when updating ACCEL characteristic value
-void ble_mpu_accel_update(ble_mpu_t *p_mpu, accel_values_t *accel_values) {
-  // Send value if connected and notifying
+void ble_mpu_combined_update_v2(ble_mpu_t *p_mpu) {
+  uint32_t err_code;
   if (p_mpu->conn_handle != BLE_CONN_HANDLE_INVALID) {
-    uint16_t len = sizeof(accel_values_t);
-    ble_gatts_hvx_params_t hvx_params;
-    memset(&hvx_params, 0, sizeof(hvx_params));
-
-    hvx_params.handle = p_mpu->accel_char_handles.value_handle;
-    hvx_params.type = BLE_GATT_HVX_NOTIFICATION;
-    hvx_params.offset = 0;
-    hvx_params.p_len = &len;
-    hvx_params.p_data = (uint8_t *)accel_values;
-    //^Converted to 8-bit values
-    sd_ble_gatts_hvx(p_mpu->conn_handle, &hvx_params);
-    //nrf_gpio_pin_toggle(22);
-  }
-}
-
-void ble_mpu_gyro_update(ble_mpu_t *p_mpu, gyro_values_t *gyro_values) {
-  //Send if connected and notifying:
-
-  if (p_mpu->conn_handle != BLE_CONN_HANDLE_INVALID) {
-    uint16_t len = sizeof(gyro_values_t);
-    ble_gatts_hvx_params_t hvx_params;
-    memset(&hvx_params, 0, sizeof(hvx_params));
-    //IMPORTANT LINE:					 ?								?
-    hvx_params.handle = p_mpu->gyro_char_handles.value_handle;
-    hvx_params.type = BLE_GATT_HVX_NOTIFICATION;
-    hvx_params.offset = 0;
-    hvx_params.p_len = &len;
-    hvx_params.p_data = (uint8_t *)gyro_values;
+    uint16_t hvx_len = 240;
+    ble_gatts_hvx_params_t const hvx_params = {
+      .handle = p_mpu->combined_char_handles.value_handle,
+      .type = BLE_GATT_HVX_NOTIFICATION,
+      .offset = 0,
+      .p_len = &hvx_len,
+      .p_data = p_mpu->mpu_buffer,
+    };
     sd_ble_gatts_hvx(p_mpu->conn_handle, &hvx_params);
   }
 }
 
-void ble_mpu_magnt_update(ble_mpu_t *p_mpu, magn_values_t *magn_values) {
-  if (p_mpu->conn_handle != BLE_CONN_HANDLE_INVALID) {
-    uint16_t len = sizeof(magn_values_t);
-    ble_gatts_hvx_params_t hvx_params;
-    memset(&hvx_params, 0, sizeof(hvx_params));
-    hvx_params.handle = p_mpu->magnt_char_handles.value_handle;
-    hvx_params.type = BLE_GATT_HVX_NOTIFICATION;
-    hvx_params.offset = 0;
-    hvx_params.p_len = &len;
-    hvx_params.p_data = (uint8_t *)magn_values;
-    sd_ble_gatts_hvx(p_mpu->conn_handle, &hvx_params);
-  }
-}
-
-void ble_mpu_temp_update(ble_mpu_t *p_mpu, temp_value_t *temperature) {
-  if (p_mpu->conn_handle != BLE_CONN_HANDLE_INVALID) {
-    uint16_t len = sizeof(temp_value_t);
-    ble_gatts_hvx_params_t hvx_params;
-    memset(&hvx_params, 0, sizeof(hvx_params));
-    hvx_params.handle = p_mpu->temp_char_handles.value_handle;
-    hvx_params.type = BLE_GATT_HVX_NOTIFICATION;
-    hvx_params.offset = 0;
-    hvx_params.p_len = &len;
-    hvx_params.p_data = (uint8_t *)temperature;
-    sd_ble_gatts_hvx(p_mpu->conn_handle, &hvx_params);
-  }
-}
 #endif /**@(defined(MPU60x0) || defined(MPU9150) || defined(MPU9255))*/

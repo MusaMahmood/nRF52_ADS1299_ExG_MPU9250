@@ -24,6 +24,7 @@
   <ProjectSessionItem path="ble_app_MPU9250_pca10040_s132;ble_app_MPU9250_pca10040_s132;Application"/>
   <ProjectSessionItem path="ble_app_MPU9250_pca10040_s132;ble_app_MPU9250_pca10040_s132;nRF_BLE"/>
   <ProjectSessionItem path="ble_app_MPU9250_pca10040_s132;ble_app_MPU9250_pca10040_s132;nRF_Drivers"/>
+  <ProjectSessionItem path="ble_app_MPU9250_pca10040_s132;ble_app_MPU9250_pca10040_s132;nRF_Segger_RTT"/>
  </Project>
  <Register1>
   <RegisterWindow visibleNodes="CPU - Current Context/r0;CPU - Current Context/r1;CPU - Current Context/r2;CPU - Current Context/r3;CPU - Current Context/r4;CPU - Current Context/r5;CPU - Current Context/r6;CPU - Current Context/r7;CPU - Current Context/r8;CPU - Current Context/r9;CPU - Current Context/r10;CPU - Current Context/r11;CPU - Current Context/r12;CPU - Current Context/sp(r13);CPU - Current Context/lr(r14);CPU - Current Context/pc(r15);CPU - Current Context/apsr;CPU/r0;CPU/r1;CPU/r2;CPU/r3;CPU/r4;CPU/r5;CPU/r6;CPU/r7;CPU/r8;CPU/r9;CPU/r10;CPU/r11;CPU/r12;CPU/sp(r13);CPU/lr(r14);CPU/pc(r15);CPU/xpsr;CPU/msp;CPU/psp;CPU/cfbp" binaryNodes="" asciiNodes="" openNodes="CPU - Current Context" name="ble_app_MPU9250_pca10040_s132" decimalNodes="" octalNodes="" unsignedNodes=""/>
@@ -54,9 +55,16 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="816" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../main.c" debugPath="../../../main.c" selected="0" top="778" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="165" useTextEdit="1" useBinaryEdit="0" left="0" path="ads1299-x.c" debugPath="ads1299-x.c" selected="0" top="144" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="124" useTextEdit="1" useBinaryEdit="0" left="0" path="../config/sdk_config.h" debugPath="../config/sdk_config.h" selected="1" top="96" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="21" y="800" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../main.c" debugPath="../../../main.c" selected="1" top="781" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="60" useTextEdit="1" useBinaryEdit="0" left="0" path="ble_eeg.h" debugPath="ble_eeg.h" selected="0" top="33" codecName="Default"/>
+  <SessionOpenFile windowGroup="HUD {df32cc4a-a5d1-42ff-9239-8157b0961711} Middle" x="2" y="11" useTextEdit="1" useBinaryEdit="0" left="0" path="ble_mpu.h" debugPath="ble_mpu.h" selected="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="HUD {df32cc4a-a5d1-42ff-9239-8157b0961711} Left" x="62" y="106" useTextEdit="1" useBinaryEdit="0" left="0" path="app_mpu.c" debugPath="app_mpu.c" selected="0" top="49" codecName="Default"/>
+  <SessionOpenFile windowGroup="HUD {df32cc4a-a5d1-42ff-9239-8157b0961711} Middle" x="5" y="112" useTextEdit="1" useBinaryEdit="0" left="0" path="ble_mpu.c" debugPath="ble_mpu.c" selected="0" top="65" codecName="Default"/>
+  <SessionOpenFile windowGroup="HUD {be0447eb-fdaf-4ea0-81ba-6c7ba9604a77} Middle" x="32" y="120" useTextEdit="1" useBinaryEdit="0" left="0" path="ble_eeg.c" debugPath="ble_eeg.c" selected="0" top="86" codecName="Default"/>
+  <SessionOpenFile windowGroup="HUD {df32cc4a-a5d1-42ff-9239-8157b0961711} Left" x="30" y="314" useTextEdit="1" useBinaryEdit="0" left="0" path="app_mpu.h" debugPath="app_mpu.h" selected="0" top="296" codecName="Default"/>
+  <SessionOpenFile windowGroup="HUD {be0447eb-fdaf-4ea0-81ba-6c7ba9604a77} Middle" x="0" y="234" useTextEdit="1" useBinaryEdit="0" left="0" path="ads1299-x.c" debugPath="ads1299-x.c" selected="0" top="212" codecName="Default"/>
+  <SessionOpenFile windowGroup="HUD {be0447eb-fdaf-4ea0-81ba-6c7ba9604a77} Right" x="0" y="160" useTextEdit="1" useBinaryEdit="0" left="0" path="nrf_drv_mpu_twi.c" debugPath="nrf_drv_mpu_twi.c" selected="0" top="120" codecName="Default"/>
+  <SessionOpenFile windowGroup="HUD {be0447eb-fdaf-4ea0-81ba-6c7ba9604a77} Middle" x="0" y="0" useTextEdit="1" useBinaryEdit="0" left="0" path="ads1299-x.h" debugPath="ads1299-x.h" selected="0" top="0" codecName="Default"/>
  </Files>
- <ARMCrossStudioWindow activeProject="ble_app_MPU9250_pca10040_s132" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="nrf52832_xxaa" debugSearchFileMap="" fileDialogInitialDirectory="C:/Users/mmahmood31/Google Drive/nRF5_SDK_13.1.0/components/libraries/twi" debugSearchPath="" autoConnectCapabilities="3711"/>
+ <ARMCrossStudioWindow activeProject="ble_app_MPU9250_pca10040_s132" fileDialogDefaultFilter="" autoConnectTarget="J-Link" buildConfiguration="nrf52832_xxaa" debugSearchFileMap="" fileDialogInitialDirectory="C:/Users/mmahmood31/Google Drive/nRF5_SDK_13.1.0/examples/_my_projects/nRF52_ADS1299_ExG_MPU9250/pca10040/s132/arm5_no_packs" debugSearchPath="" autoConnectCapabilities="3711"/>
 </session>
