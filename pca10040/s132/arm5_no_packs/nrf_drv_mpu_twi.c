@@ -75,7 +75,7 @@ uint32_t nrf_drv_mpu_init(void) {
       .scl = MPU_TWI_SCL_PIN,
       .sda = MPU_TWI_SDA_PIN,
       .frequency = NRF_TWI_FREQ_400K,
-      .interrupt_priority = APP_IRQ_PRIORITY_HIGHEST};
+      .interrupt_priority = APP_IRQ_PRIORITY_LOW};
 
   err_code = nrf_drv_twi_init(&m_twi_instance, &twi_mpu_config, nrf_drv_mpu_twi_event_handler, NULL);
   if (err_code != NRF_SUCCESS) {

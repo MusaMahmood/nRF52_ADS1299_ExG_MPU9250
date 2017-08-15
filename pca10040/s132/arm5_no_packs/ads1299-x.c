@@ -264,4 +264,5 @@ void get_eeg_voltage_array(ble_eeg_t *p_eeg) {
   p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = tx_rx_data[3];
   p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = tx_rx_data[4];
   p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = tx_rx_data[5];
+  //NRF_LOG_INFO("DATA: 0x%X%X%X\r\n", tx_rx_data[3], tx_rx_data[4], tx_rx_data[5]);
 }

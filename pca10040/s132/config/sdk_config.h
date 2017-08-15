@@ -586,7 +586,7 @@
 #if  GPIOTE_ENABLED
 // <o> GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS - Number of lower power input pins 
 #ifndef GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS
-#define GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS 4
+#define GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS 2
 #endif
 
 // <o> GPIOTE_CONFIG_IRQ_PRIORITY  - Interrupt priority
@@ -603,7 +603,7 @@
 // <7=> 7 
 
 #ifndef GPIOTE_CONFIG_IRQ_PRIORITY
-#define GPIOTE_CONFIG_IRQ_PRIORITY 7
+#define GPIOTE_CONFIG_IRQ_PRIORITY 6
 #endif
 
 // <e> GPIOTE_CONFIG_LOG_ENABLED - Enables logging in the module.
@@ -3072,7 +3072,7 @@
 #if  APP_TIMER_ENABLED
 
 #ifndef APP_TIMER_SAMPLING
-#define APP_TIMER_SAMPLING 1
+#define APP_TIMER_SAMPLING 0
 #endif
 
 // <o> APP_TIMER_CONFIG_RTC_FREQUENCY  - Configure RTC prescaler.
@@ -3214,7 +3214,7 @@
  
 
 #ifndef BUTTON_ENABLED
-#define BUTTON_ENABLED 1
+#define BUTTON_ENABLED 0
 #endif
 
 // <q> CRC16_ENABLED  - crc16 - CRC16 calculation routines

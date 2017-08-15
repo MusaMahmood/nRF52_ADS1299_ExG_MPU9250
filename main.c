@@ -76,9 +76,9 @@
 #include "sensorsim.h"
 #include "softdevice_handler.h"
 #define NRF_LOG_MODULE_NAME "APP"
+#include "ble_mpu.h"
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
-#include "ble_mpu.h"
 ble_mpu_t m_mpu;
 
 #if defined(ADS1299)
@@ -172,18 +172,13 @@ static void m_sampling_timeout_handler(void *p_context) {
 #endif
 #if (defined(MPU60x0) || defined(MPU9150) || defined(MPU9250) || defined(MPU9255))
 static void mpu_send_timeout_handler(void *p_context) {
-  //DEPENDSS ON SAMPLING RATE
-  //TODO: Don't use
+  //DEPENDS ON SAMPLING RATE
   mpu_read_accel_array(&m_mpu);
   mpu_read_gyro_array(&m_mpu);
-  if(m_mpu.mpu_count == 240) {
-
+  if (m_mpu.mpu_count == 240) {
+    m_mpu.mpu_count = 0;
     ble_mpu_combined_update_v2(&m_mpu);
   }
-//  combined_values_t combined_values = {
-//      accel_values.x, accel_values.y, accel_values.z,
-//      gyro_values.x, gyro_values.y, gyro_values.z};
-//  ble_mpu_combined_update(&m_mpu, &combined_values);
 }
 #endif /**@(defined(MPU60x0) || defined(MPU9150) || defined(MPU9255))*/
 
@@ -701,17 +696,17 @@ void twi_setup(void) {
 */
 ///*
 void mpu_setup(void) {
-    ret_code_t ret_code;
-    // Initiate MPU driver
-    ret_code = mpu_init();
-    APP_ERROR_CHECK(ret_code); // Check for errors in return value
-    
-    // Setup and configure the MPU with intial values
-    mpu_config_t p_mpu_config = MPU_DEFAULT_CONFIG(); // Load default values
-    p_mpu_config.smplrt_div = 19;   // Change sampelrate. Sample Rate = Gyroscope Output Rate / (1 + SMPLRT_DIV). 19 gives a sample rate of 50Hz
-    p_mpu_config.accel_config.afs_sel = AFS_2G; // Set accelerometer full scale range to 2G
-    ret_code = mpu_config(&p_mpu_config); // Configure the MPU with above values
-    APP_ERROR_CHECK(ret_code); // Check for errors in return value 
+  ret_code_t ret_code;
+  // Initiate MPU driver
+  ret_code = mpu_init();
+  APP_ERROR_CHECK(ret_code); // Check for errors in return value
+
+  // Setup and configure the MPU with intial values
+  mpu_config_t p_mpu_config = MPU_DEFAULT_CONFIG(); // Load default values
+  p_mpu_config.smplrt_div = 19;                     // Change sampelrate. Sample Rate = Gyroscope Output Rate / (1 + SMPLRT_DIV). 19 gives a sample rate of 50Hz
+  p_mpu_config.accel_config.afs_sel = AFS_2G;       // Set accelerometer full scale range to 2G
+  ret_code = mpu_config(&p_mpu_config);             // Configure the MPU with above values
+  APP_ERROR_CHECK(ret_code);                        // Check for errors in return value
 }
 //*/
 #endif
@@ -722,10 +717,10 @@ void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
   UNUSED_PARAMETER(pin);
   UNUSED_PARAMETER(action);
   get_eeg_voltage_array(&m_eeg);
-  if (m_eeg.eeg_ch1_count == 246) {
 #if defined(APP_TIMER_SAMPLING) && APP_TIMER_SAMPLING == 1
-    m_samples += 1;
+  m_samples += 1;
 #endif
+  if (m_eeg.eeg_ch1_count == 246) {
     m_eeg.eeg_ch1_count = 0;
     ble_eeg_update_1ch_v2(&m_eeg);
   }
@@ -808,7 +803,8 @@ int main(void) {
   // Start execution.
   application_timers_start();
   advertising_start();
-  NRF_LOG_RAW_INFO(" BLE Advertising Start! \r\n");NRF_LOG_FLUSH();
+  NRF_LOG_RAW_INFO(" BLE Advertising Start! \r\n");
+  NRF_LOG_FLUSH();
 #if defined(BOARD_EXG_V3)
   nrf_gpio_pin_clear(LED_2); // Green
   nrf_gpio_pin_set(LED_1);   //Blue
@@ -817,8 +813,7 @@ int main(void) {
 #if defined(APP_TIMER_SAMPLING) && APP_TIMER_SAMPLING == 1
   m_samples = 0;
 #endif
-
-  // Enter main loop.
+  // Enter main loop
   for (;;) {
 #if defined(APP_TIMER_SAMPLING) && APP_TIMER_SAMPLING == 1
     if (m_timer) {
