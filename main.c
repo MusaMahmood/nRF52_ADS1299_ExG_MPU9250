@@ -113,10 +113,10 @@ static uint16_t m_samples;
 #define APP_ADV_INTERVAL 300            /**< The advertising interval (in units of 0.625 ms. This value corresponds to 187.5 ms). */
 #define APP_ADV_TIMEOUT_IN_SECONDS 180  /**< The advertising timeout in units of seconds. */
 
-#define MIN_CONN_INTERVAL MSEC_TO_UNITS(15, UNIT_1_25_MS) /**< Minimum acceptable connection interval (0.1 seconds). */
-#define MAX_CONN_INTERVAL MSEC_TO_UNITS(15, UNIT_1_25_MS)  /**< Maximum acceptable connection interval (0.2 second). */
-#define SLAVE_LATENCY 0                                    /**< Slave latency. */
-#define CONN_SUP_TIMEOUT MSEC_TO_UNITS(4000, UNIT_10_MS)   /**< Connection supervisory timeout (4 seconds). */
+#define MIN_CONN_INTERVAL MSEC_TO_UNITS(14, UNIT_1_25_MS) /**< Minimum acceptable connection interval (0.1 seconds). */
+#define MAX_CONN_INTERVAL MSEC_TO_UNITS(15, UNIT_1_25_MS) /**< Maximum acceptable connection interval (0.2 second). */
+#define SLAVE_LATENCY 0                                   /**< Slave latency. */
+#define CONN_SUP_TIMEOUT MSEC_TO_UNITS(4000, UNIT_10_MS)  /**< Connection supervisory timeout (4 seconds). */
 
 #define CONN_CFG_TAG 1 /**< A tag that refers to the BLE stack configuration we set with @ref sd_ble_cfg_set. Default tag is @ref BLE_CONN_CFG_TAG_DEFAULT. */
 
@@ -166,11 +166,11 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t *p_file_name) {
 #if defined(APP_TIMER_SAMPLING) && APP_TIMER_SAMPLING == 1
 static void m_sampling_timeout_handler(void *p_context) {
   UNUSED_PARAMETER(p_context);
-  #if defined(APP_TIMER_SAMPLING) && APP_TIMER_SAMPLING == 1
+#if defined(APP_TIMER_SAMPLING) && APP_TIMER_SAMPLING == 1
 #if LOG_LOW_DETAIL == 1
-      NRF_LOG_INFO("SAMPLE RATE = %dHz \r\n", m_samples);
+  NRF_LOG_INFO("SAMPLE RATE = %dHz \r\n", m_samples);
 #endif
-      m_samples = 0;
+  m_samples = 0;
 #endif
 }
 #endif
@@ -726,7 +726,7 @@ void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
 #if defined(APP_TIMER_SAMPLING) && APP_TIMER_SAMPLING == 1
   m_samples += 1;
 #endif
-  if (m_eeg.eeg_ch1_count == EEG_PACKET_LENGTH/*246*/) {
+  if (m_eeg.eeg_ch1_count == EEG_PACKET_LENGTH /*246*/) {
     m_eeg.eeg_ch1_count = 0;
     ble_eeg_update_1ch_v2(&m_eeg);
   }
@@ -817,14 +817,14 @@ int main(void) {
 #if defined(APP_TIMER_SAMPLING) && APP_TIMER_SAMPLING == 1
   m_samples = 0;
 #endif
-  // Enter main loop
-  for (;;) {
+// Enter main loop
 #if NRF_LOG_ENABLED == 1
+  for (;;) {
     if (!NRF_LOG_PROCESS()) {
       wait_for_event();
     }
-#endif
   }
+#endif
 }
 
 /**

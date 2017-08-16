@@ -51,8 +51,8 @@ void ble_eeg_on_ble_evt(ble_eeg_t *p_eeg, ble_evt_t *p_ble_evt) {
 static uint32_t eeg_ch1_char_add(ble_eeg_t *p_eeg) {
   uint32_t err_code = 0;
   ble_uuid_t char_uuid;
-  uint8_t encoded_initial_eeg[MAX_LEN_BLE_PACKET_BYTES];
-  memset(encoded_initial_eeg, 0, MAX_LEN_BLE_PACKET_BYTES);
+  uint8_t encoded_initial_eeg[EEG_PACKET_LENGTH];
+  memset(encoded_initial_eeg, 0, EEG_PACKET_LENGTH);
   BLE_UUID_BLE_ASSIGN(char_uuid, BLE_UUID_EEG_CH1_CHAR);
 
   ble_gatts_char_md_t char_md;
@@ -79,7 +79,7 @@ static uint32_t eeg_ch1_char_add(ble_eeg_t *p_eeg) {
   memset(&attr_char_value, 0, sizeof(attr_char_value));
   attr_char_value.p_uuid = &char_uuid;
   attr_char_value.p_attr_md = &attr_md;
-  attr_char_value.init_len = 246;
+  attr_char_value.init_len = EEG_PACKET_LENGTH;
   attr_char_value.init_offs = 0;
   attr_char_value.max_len = MAX_LEN_BLE_PACKET_BYTES;
   attr_char_value.p_value = encoded_initial_eeg;
