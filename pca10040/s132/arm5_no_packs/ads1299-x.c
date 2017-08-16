@@ -274,7 +274,6 @@ void ads1299_init_regs(void) {
  */
 void get_eeg_voltage_array(ble_eeg_t *p_eeg) {
   memset(rx_data, 0, 6); spi_xfer_done = false;
-  uint8_t cnt = 0;
   APP_ERROR_CHECK(nrf_drv_spi_transfer(&spi, NULL, 0, rx_data, 6));
   __WFI();
   while(!spi_xfer_done) {__WFE();}
@@ -285,13 +284,5 @@ void get_eeg_voltage_array(ble_eeg_t *p_eeg) {
       p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[5];
     }
   }
-//  while (!spi_xfer_done) {__WFE();}
-//  if((rx_data[0] = 0xC0) && (rx_data[1]+rx_data[2])==0) {
-//    if((rx_data[4]+rx_data[5]!=0)) {
-//      p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[3];
-//      p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[4];
-//      p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[5];
-//    }
-//  }
 //  NRF_LOG_INFO("SET1: 0x%X%X%X\r\n", rx_data[3], rx_data[4], rx_data[5]);
 }
