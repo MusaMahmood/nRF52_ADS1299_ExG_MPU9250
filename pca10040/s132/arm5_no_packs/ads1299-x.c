@@ -278,11 +278,11 @@ void get_eeg_voltage_array(ble_eeg_t *p_eeg) {
   __WFI();
   while(!spi_xfer_done) {__WFE();}
   if(((rx_data[0]+rx_data[1]+rx_data[2]) == 0xC0)) {
-    if((rx_data[4] + rx_data[5])!=0) {
+//    if((rx_data[4] + rx_data[5])!=0) {
       p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[3];
       p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[4];
       p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[5];
-    }
+//    }
   }
 //  NRF_LOG_INFO("SET1: 0x%X%X%X\r\n", rx_data[3], rx_data[4], rx_data[5]);
 }
