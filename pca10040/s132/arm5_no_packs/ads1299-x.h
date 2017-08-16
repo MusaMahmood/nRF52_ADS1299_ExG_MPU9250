@@ -153,7 +153,8 @@ extern "C" {
 #define ADS1299_REGDEFAULT_CONFIG2 0xD0 ///< Configuration register 2. Controls LOFF comparator, reference, CLK pin, and test signal.
 #define ADS1299_REGDEFAULT_CONFIG3 0xEC//0xEC
 #define ADS1299_REGDEFAULT_LOFF 0x00//0x02   ///< Lead-off control register. Controls lead-off frequency, magnitude, and threshold.
-#define ADS1299_REGDEFAULT_CH1SET 0x65 ///< Channel 1 settings register. Controls channel 1 input mux, gain, and power-down.
+#define ADS1299_REGDEFAULT_CH1SET 0x60 ///< Channel 1 settings register. Controls channel 1 input mux, gain, and power-down.
+  //0x61 is input short, 0x60 is normal electrode, 0x65 is test signal
 #define ADS1299_REGDEFAULT_CH2SET 0xE1
 #define ADS1299_REGDEFAULT_CH3SET 0xE1
 #define ADS1299_REGDEFAULT_CH4SET 0xE1
