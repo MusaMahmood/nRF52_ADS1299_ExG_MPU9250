@@ -77,7 +77,6 @@ void ble_eeg_on_ble_evt(ble_eeg_t *p_eeg, ble_evt_t *p_ble_evt);
 */
 
 void ble_eeg_update_1ch_v2(ble_eeg_t *p_eeg);
-void ble_eeg_update_1ch_v3(ble_eeg_t *p_eeg, int sectionNum);
 
 
 

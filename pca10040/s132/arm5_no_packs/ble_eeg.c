@@ -131,19 +131,4 @@ void ble_eeg_update_1ch_v2(ble_eeg_t *p_eeg) {
   }
 }
 
-void ble_eeg_update_1ch_v3(ble_eeg_t *p_eeg, int sectionNum) {
-  uint32_t err_code;
-  if (p_eeg->conn_handle != BLE_CONN_HANDLE_INVALID) {
-    uint16_t hvx_len = 246;
-    ble_gatts_hvx_params_t const hvx_params = {
-      .handle = p_eeg->eeg_ch1_handles.value_handle,
-      .type = BLE_GATT_HVX_NOTIFICATION,
-      .offset = 0,
-      .p_len = &hvx_len,
-      .p_data = p_eeg->eeg_ch1_buffer,
-    };
-    sd_ble_gatts_hvx(p_eeg->conn_handle, &hvx_params);
-  }
-}
-
 #endif //(defined(ADS1299)

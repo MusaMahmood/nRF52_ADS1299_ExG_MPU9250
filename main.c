@@ -114,7 +114,7 @@ static uint16_t m_samples;
 #define APP_ADV_TIMEOUT_IN_SECONDS 180  /**< The advertising timeout in units of seconds. */
 
 #define MIN_CONN_INTERVAL MSEC_TO_UNITS(7.5, UNIT_1_25_MS) /**< Minimum acceptable connection interval (0.1 seconds). */
-#define MAX_CONN_INTERVAL MSEC_TO_UNITS(25, UNIT_1_25_MS)  /**< Maximum acceptable connection interval (0.2 second). */
+#define MAX_CONN_INTERVAL MSEC_TO_UNITS(15, UNIT_1_25_MS)  /**< Maximum acceptable connection interval (0.2 second). */
 #define SLAVE_LATENCY 0                                    /**< Slave latency. */
 #define CONN_SUP_TIMEOUT MSEC_TO_UNITS(4000, UNIT_10_MS)   /**< Connection supervisory timeout (4 seconds). */
 
@@ -727,12 +727,8 @@ void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
   m_samples += 1;
 #endif
   if (m_eeg.eeg_ch1_count == 246/*246*/) {
-//    uint8_t c_counter;
     m_eeg.eeg_ch1_count = 0;
     ble_eeg_update_1ch_v2(&m_eeg);
-//    for(c_counter=0; c_counter<4; c_counter++) {
-//        ble_eeg_update_1ch_v3(&m_eeg, c_counter);
-//    }
   }
 }
 
