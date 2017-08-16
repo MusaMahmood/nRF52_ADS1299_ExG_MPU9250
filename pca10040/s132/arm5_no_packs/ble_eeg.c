@@ -29,6 +29,7 @@
 #include <string.h>
 
 #define MAX_LEN_BLE_PACKET_BYTES 246 //20*3bytes																						 /**< Maximum size in bytes of a transmitted Body Voltage Measurement. */
+ //20*3bytes																						 /**< Maximum size in bytes of a transmitted Body Voltage Measurement. */
 
 void ble_eeg_on_ble_evt(ble_eeg_t *p_eeg, ble_evt_t *p_ble_evt) {
   switch (p_ble_evt->header.evt_id) {
@@ -119,7 +120,7 @@ void ble_eeg_service_init(ble_eeg_t *p_eeg) {
 void ble_eeg_update_1ch_v2(ble_eeg_t *p_eeg) {
   uint32_t err_code;
   if (p_eeg->conn_handle != BLE_CONN_HANDLE_INVALID) {
-    uint16_t hvx_len = 246;
+    uint16_t hvx_len = EEG_PACKET_LENGTH;
     ble_gatts_hvx_params_t const hvx_params = {
       .handle = p_eeg->eeg_ch1_handles.value_handle,
       .type = BLE_GATT_HVX_NOTIFICATION,
