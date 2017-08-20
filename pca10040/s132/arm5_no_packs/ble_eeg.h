@@ -49,7 +49,7 @@
 // Characteristic UUIDs
 #define BLE_UUID_EEG_CH1_CHAR 0xEEF1
 
-#define EEG_PACKET_LENGTH 240
+#define EEG_PACKET_LENGTH 246
 
 /**@brief Biopotential Measurement Service init structure. This contains all options and data needed for
  *        initialization of the service. */

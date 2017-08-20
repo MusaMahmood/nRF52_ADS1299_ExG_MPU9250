@@ -81,7 +81,7 @@ static uint32_t eeg_ch1_char_add(ble_eeg_t *p_eeg) {
   attr_char_value.p_attr_md = &attr_md;
   attr_char_value.init_len = EEG_PACKET_LENGTH;
   attr_char_value.init_offs = 0;
-  attr_char_value.max_len = MAX_LEN_BLE_PACKET_BYTES;
+  attr_char_value.max_len = EEG_PACKET_LENGTH;
   attr_char_value.p_value = encoded_initial_eeg;
   err_code = sd_ble_gatts_characteristic_add(p_eeg->service_handle,
       &char_md,
@@ -128,8 +128,15 @@ void ble_eeg_update_1ch_v2(ble_eeg_t *p_eeg) {
       .p_len = &hvx_len,
       .p_data = p_eeg->eeg_ch1_buffer,
     };
-    sd_ble_gatts_hvx(p_eeg->conn_handle, &hvx_params);
+    err_code = sd_ble_gatts_hvx(p_eeg->conn_handle, &hvx_params);
+  } 
+  
+  if(err_code==NRF_ERROR_RESOURCES) {
+      NRF_LOG_INFO("sd_ble_gatts_hvx() ERR/RES: 0x%x\r\n", err_code);
+  } /*else if (err_code != NRF_SUCCESS) {
+      NRF_LOG_ERROR("sd_ble_gatts_hvx() failed: 0x%x\r\n", err_code);
   }
+//  */
 }
 
 #endif //(defined(ADS1299)
