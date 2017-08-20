@@ -382,7 +382,8 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt) {
   case BLE_ADV_EVT_FAST:
     NRF_LOG_INFO("Fast advertising.\r\n");
     APP_ERROR_CHECK(err_code);
-#if defined(BOARD_EXG_V3)
+//#if defined(BOARD_EXG_V3)
+#if LEDS_ENABLE == 1
     nrf_gpio_pin_clear(LED_2); // Green
     nrf_gpio_pin_set(LED_1);   //Blue
 #endif
@@ -411,7 +412,7 @@ static void on_ble_evt(ble_evt_t *p_ble_evt) {
 #if defined(ADS1299)
     ads1299_standby();
 #endif
-#if defined(BOARD_EXG_V3)
+#if LEDS_ENABLE == 1
     nrf_gpio_pin_clear(LED_2); // Green
     nrf_gpio_pin_set(LED_1);   //Blue
 #endif
@@ -423,7 +424,8 @@ static void on_ble_evt(ble_evt_t *p_ble_evt) {
 #if defined(ADS1299)
     ads1299_wake();
 #endif
-#if defined(BOARD_EXG_V3)
+//#if defined(BOARD_EXG_V3)
+#if LEDS_ENABLE == 1
     nrf_gpio_pin_set(LED_2);
     nrf_gpio_pin_clear(LED_1);
 #endif
@@ -654,51 +656,8 @@ static void advertising_start(void) {
 }
 
 #if (defined(MPU60x0) || defined(MPU9150) || defined(MPU9250) || defined(MPU9255))
-/**
- * @brief TWI events handler.
- */
-void twi_handler(nrf_drv_twi_evt_t const *p_event, void *p_context) {
-  switch (p_event->type) {
-  case NRF_DRV_TWI_EVT_DONE:
-    // If EVT_DONE (event done) is received a device is found and responding on that particular address
-    NRF_LOG_WARNING("\r\n!****************************!\r\nDevice found at 7-bit address: 0x%x!\r\n!****************************!\r\n\r\n");
-    //device_found = true;
-    break;
-  case NRF_DRV_TWI_EVT_ADDRESS_NACK:
-    NRF_LOG_ERROR("No address ACK on address: %#x!\r\n");
-    break;
-  case NRF_DRV_TWI_EVT_DATA_NACK:
-    NRF_LOG_ERROR("No data ACK on address: %#x!\r\n");
-    break;
-  default:
-    break;
-  }
-  // Pass TWI events down to the MPU driver.
-  //  mpu_twi_event_handler(p_event);
-  UNUSED_PARAMETER(p_context);
-}
-
-/**
- * @brief TWI initialization.
- * Nothing special here
- 
-void twi_setup(void) {
-  ret_code_t err_code;
-  const nrf_drv_twi_config_t twi_mpu_config = {
-      .scl = MPU_TWI_SCL_PIN, //MPU_TWI_SCL_PIN,
-      .sda = MPU_TWI_SDA_PIN, //MPU_TWI_SDA_PIN,
-      .frequency = NRF_TWI_FREQ_400K,
-      .interrupt_priority = APP_IRQ_PRIORITY_HIGH,
-      .clear_bus_init = false};
-  err_code = nrf_drv_twi_init(&m_twi_instance, &twi_mpu_config, twi_handler, NULL);
-  NRF_LOG_RAW_INFO(" ERRCODE: nrf_drv_twi_init: %d \r\n", err_code);
-  NRF_LOG_FLUSH();
-  if (NRF_SUCCESS == err_code)
-    nrf_drv_twi_enable(&m_twi_instance);
-  APP_ERROR_CHECK(err_code);
-}
-*/
 ///*
+//MPU9250;MPU9255
 void mpu_setup(void) {
   ret_code_t ret_code;
   // Initiate MPU driver
@@ -733,20 +692,24 @@ void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
 }
 
 static void ads1299_gpio_init(void) {
-#if defined(BOARD_PCA10040)
+#if defined(BOARD_PCA10040) && LEDS_ENABLE == 1
   nrf_gpio_cfg_output(LED_1);
   nrf_gpio_cfg_output(LED_2);
   nrf_gpio_cfg_output(LED_3);
   nrf_gpio_cfg_output(LED_4);
+  nrf_gpio_pin_set(LED_3);
+  nrf_gpio_pin_set(LED_4);
 #endif
 
 #if defined(BOARD_NRF_BREAKOUT) | defined(BOARD_PCA10028) | defined(BOARD_PCA10040) | defined(BOARD_EXG_V3)
   nrf_gpio_pin_dir_set(ADS1299_DRDY_PIN, NRF_GPIO_PIN_DIR_INPUT); //sets 'direction' = input/output
   nrf_gpio_pin_dir_set(ADS1299_PWDN_RST_PIN, NRF_GPIO_PIN_DIR_OUTPUT);
 #endif
-#if defined(BOARD_EXG_V3)
+#if defined(BOARD_EXG_V3) && LEDS_ENABLE == 1
   nrf_gpio_cfg_output(LED_1);
   nrf_gpio_cfg_output(LED_2);
+  nrf_gpio_pin_set(LED_1);
+  nrf_gpio_pin_set(LED_2);
 #endif
   uint32_t err_code;
   if (!nrf_drv_gpiote_is_init()) {
@@ -810,7 +773,7 @@ int main(void) {
   advertising_start();
   NRF_LOG_RAW_INFO(" BLE Advertising Start! \r\n");
   NRF_LOG_FLUSH();
-#if defined(BOARD_EXG_V3)
+#if LEDS_ENABLE == 1
   nrf_gpio_pin_clear(LED_2); // Green
   nrf_gpio_pin_set(LED_1);   //Blue
 #endif

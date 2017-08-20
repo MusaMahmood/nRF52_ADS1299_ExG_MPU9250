@@ -6,6 +6,10 @@
 #endif
 // <h> nRF_BLE 
 
+#ifndef LEDS_ENABLE
+#define LEDS_ENABLE 0
+#endif
+
 //==========================================================
 // <q> BLE_ADVERTISING_ENABLED  - ble_advertising - Advertising module
  

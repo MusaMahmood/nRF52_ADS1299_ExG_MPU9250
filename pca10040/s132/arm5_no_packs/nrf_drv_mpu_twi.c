@@ -17,8 +17,8 @@
  * for each board. This is only for my own convenience. 
  */
 #if defined(BOARD_PCA10040)
-#define MPU_TWI_SCL_PIN 3
-#define MPU_TWI_SDA_PIN 4
+#define MPU_TWI_SCL_PIN 31
+#define MPU_TWI_SDA_PIN 30
 #else
 #define MPU_TWI_SCL_PIN 21
 #define MPU_TWI_SDA_PIN 20
