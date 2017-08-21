@@ -192,6 +192,10 @@ typedef int16_t body_voltage_t;
 **************************************************************************************************************************************************/
 void ads_spi_init(void);
 
+void ads_spi_uninit(void);
+
+void ads_spi_init_with_sample_freq(uint8_t spi_sclk);
+
 /**
  *	\brief Initialize the ADS1299-x.
  *

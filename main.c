@@ -92,6 +92,8 @@ ble_mpu_t m_mpu;
 #define DEVICE_FIRMWARE_STRING "Version 13.1.0"
 ble_eeg_t m_eeg;
 static bool m_connected = false;
+#define SPI_SCLK_WRITE_REG 4
+#define SPI_SCLK_SAMPLING 8
 #endif
 
 #if defined(MPU9250) || defined(MPU9255) //mpu_send_timeout_handler
@@ -114,9 +116,9 @@ static uint16_t m_samples;
 #define APP_ADV_TIMEOUT_IN_SECONDS 180  /**< The advertising timeout in units of seconds. */
 
 #define MIN_CONN_INTERVAL MSEC_TO_UNITS(7.5, UNIT_1_25_MS) /**< Minimum acceptable connection interval (0.1 seconds). */
-#define MAX_CONN_INTERVAL MSEC_TO_UNITS(20, UNIT_1_25_MS) /**< Maximum acceptable connection interval (0.2 second). */
-#define SLAVE_LATENCY 0                                   /**< Slave latency. */
-#define CONN_SUP_TIMEOUT MSEC_TO_UNITS(4000, UNIT_10_MS)  /**< Connection supervisory timeout (4 seconds). */
+#define MAX_CONN_INTERVAL MSEC_TO_UNITS(20, UNIT_1_25_MS)  /**< Maximum acceptable connection interval (0.2 second). */
+#define SLAVE_LATENCY 0                                    /**< Slave latency. */
+#define CONN_SUP_TIMEOUT MSEC_TO_UNITS(4000, UNIT_10_MS)   /**< Connection supervisory timeout (4 seconds). */
 
 #define CONN_CFG_TAG 1 /**< A tag that refers to the BLE stack configuration we set with @ref sd_ble_cfg_set. Default tag is @ref BLE_CONN_CFG_TAG_DEFAULT. */
 
@@ -422,7 +424,8 @@ static void on_ble_evt(ble_evt_t *p_ble_evt) {
     break; // BLE_GAP_EVT_DISCONNECTED
 
   case BLE_GAP_EVT_CONNECTED:
-    m_connected = true;
+    ads_spi_uninit();
+    ads_spi_init_with_sample_freq(SPI_SCLK_SAMPLING);
 #if defined(ADS1299)
     ads1299_wake();
 #endif
@@ -433,6 +436,7 @@ static void on_ble_evt(ble_evt_t *p_ble_evt) {
 #endif
     NRF_LOG_INFO("Connected.\r\n");
     m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
+    m_connected = true;
     break; // BLE_GAP_EVT_CONNECTED
 
   case BLE_GATTC_EVT_TIMEOUT:
@@ -552,7 +556,6 @@ static void ble_stack_init(void) {
   ble_cfg.common_cfg.vs_uuid_cfg.vs_uuid_count = 1; //2?
   err_code = sd_ble_cfg_set(BLE_COMMON_CFG_VS_UUID, &ble_cfg, ram_start);
   APP_ERROR_CHECK(err_code);
-
 
   // Configure the maximum number of connections.
   memset(&ble_cfg, 0x00, sizeof(ble_cfg));
@@ -677,7 +680,7 @@ void mpu_setup(void) {
   // Setup and configure the MPU with intial values
   mpu_config_t p_mpu_config = MPU_DEFAULT_CONFIG(); // Load default values
   p_mpu_config.smplrt_div = 19;                     // Change sampelrate. Sample Rate = Gyroscope Output Rate / (1 + SMPLRT_DIV). 19 gives a sample rate of 50Hz
-  p_mpu_config.accel_config.afs_sel = AFS_2G;       // Set accelerometer full scale range to 2G
+  p_mpu_config.accel_config.afs_sel = AFS_16G;      // Set accelerometer full scale range to 2G
   ret_code = mpu_config(&p_mpu_config);             // Configure the MPU with above values
   APP_ERROR_CHECK(ret_code);                        // Check for errors in return value
 }
@@ -761,7 +764,8 @@ int main(void) {
   services_init();
   conn_params_init();
 #if defined(ADS1299)
-  ads_spi_init();
+  //  ads_spi_init();
+  ads_spi_init_with_sample_freq(SPI_SCLK_WRITE_REG);
   nrf_delay_ms(5);
   ads1299_powerdn();
   ads1299_powerup();

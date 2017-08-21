@@ -46,8 +46,6 @@ static const nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(0);
 #define RX_DATA_LEN 9
 static uint8_t rx_data[RX_DATA_LEN];
 static volatile bool spi_xfer_done;
-static volatile bool b;
-static volatile bool c;
 
 /**
  * @brief SPI user event handler.
@@ -62,7 +60,7 @@ void ads_spi_init(void) {
   nrf_drv_spi_config_t spi_config = NRF_DRV_SPI_DEFAULT_CONFIG;
   spi_config.bit_order = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST;
   //SCLK = 1MHz is right speed because fCLK = (1/2)*SCLK, and fMOD = fCLK/4, and fMOD MUST BE 128kHz. Do the math.
-  spi_config.frequency = NRF_DRV_SPI_FREQ_8M;
+  spi_config.frequency = NRF_DRV_SPI_FREQ_4M;
   spi_config.irq_priority = APP_IRQ_PRIORITY_HIGHEST; //APP_IRQ_PRIORITY_HIGHEST;
   spi_config.mode = NRF_DRV_SPI_MODE_1;               //CPOL = 0 (Active High); CPHA = TRAILING (1)
   spi_config.miso_pin = ADS1299_SPI_MISO_PIN;
@@ -74,6 +72,35 @@ void ads_spi_init(void) {
 #if LOG_LOW_DETAIL == 1
   NRF_LOG_INFO(" SPI Initialized..\r\n");
 #endif
+}
+
+void ads_spi_uninit(void) {
+  nrf_drv_spi_uninit(&spi);
+}
+
+void ads_spi_init_with_sample_freq(uint8_t spi_sclk) {
+  nrf_drv_spi_config_t spi_config = NRF_DRV_SPI_DEFAULT_CONFIG;
+  switch (spi_sclk) {
+  case 2:
+    spi_config.frequency = NRF_DRV_SPI_FREQ_2M;
+    break;
+  case 4:
+    spi_config.frequency = NRF_DRV_SPI_FREQ_4M;
+    break;
+  case 8:
+    spi_config.frequency = NRF_DRV_SPI_FREQ_8M;
+    break;
+  default:
+    break;
+  }
+  spi_config.irq_priority = APP_IRQ_PRIORITY_HIGHEST; //APP_IRQ_PRIORITY_HIGHEST;
+  spi_config.mode = NRF_DRV_SPI_MODE_1;               //CPOL = 0 (Active High); CPHA = TRAILING (1)
+  spi_config.miso_pin = ADS1299_SPI_MISO_PIN;
+  spi_config.sck_pin = ADS1299_SPI_SCLK_PIN;
+  spi_config.mosi_pin = ADS1299_SPI_MOSI_PIN;
+  spi_config.ss_pin = ADS1299_SPI_CS_PIN;
+  spi_config.orc = 0x55;
+  APP_ERROR_CHECK(nrf_drv_spi_init(&spi, &spi_config, spi_event_handler, NULL));
 }
 
 void ads1299_powerdn(void) {
@@ -281,10 +308,10 @@ void get_eeg_voltage_array(ble_eeg_t *p_eeg) {
     __WFE();
   if (((rx_data[0] + rx_data[1] + rx_data[2]) == 0xC0) && ((rx_data[6] + rx_data[7] + rx_data[8]) == 0x00)) {
     //Temporary Workaround:
-//    if (((rx_data[4] << 4) | rx_data[5]) != 0x00) {
-      p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[3];
-      p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[4];
-      p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[5];
-//    }
+    //    if (((rx_data[4] << 4) | rx_data[5]) != 0x00) {
+    p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[3];
+    p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[4];
+    p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[5];
+    //    }
   }
 }
