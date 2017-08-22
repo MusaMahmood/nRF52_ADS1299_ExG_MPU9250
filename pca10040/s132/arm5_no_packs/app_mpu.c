@@ -100,7 +100,6 @@ uint32_t mpu_read_gyro(gyro_values_t *gyro_values) {
 uint32_t mpu_read_gyro_array(ble_mpu_t *p_mpu) {
   uint32_t err_code;
   uint8_t raw_values[6];
-  uint8_t size = 6;
   err_code = nrf_drv_mpu_read_registers(MPU_REG_GYRO_XOUT_H, raw_values, 6);
   if (err_code != NRF_SUCCESS)
     return err_code;

@@ -76,6 +76,7 @@ void ads_spi_init(void) {
 
 void ads_spi_uninit(void) {
   nrf_drv_spi_uninit(&spi);
+  NRF_LOG_INFO(" SPI UNinitialized \r\n");
 }
 
 void ads_spi_init_with_sample_freq(uint8_t spi_sclk) {
@@ -101,6 +102,7 @@ void ads_spi_init_with_sample_freq(uint8_t spi_sclk) {
   spi_config.ss_pin = ADS1299_SPI_CS_PIN;
   spi_config.orc = 0x55;
   APP_ERROR_CHECK(nrf_drv_spi_init(&spi, &spi_config, spi_event_handler, NULL));
+  NRF_LOG_INFO(" SPI Initialized @ %d MHz\r\n",spi_sclk);
 }
 
 void ads1299_powerdn(void) {
@@ -307,11 +309,8 @@ void get_eeg_voltage_array(ble_eeg_t *p_eeg) {
   while (!spi_xfer_done)
     __WFE();
   if (((rx_data[0] + rx_data[1] + rx_data[2]) == 0xC0) && ((rx_data[6] + rx_data[7] + rx_data[8]) == 0x00)) {
-    //Temporary Workaround:
-    //    if (((rx_data[4] << 4) | rx_data[5]) != 0x00) {
     p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[3];
     p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[4];
     p_eeg->eeg_ch1_buffer[p_eeg->eeg_ch1_count++] = rx_data[5];
-    //    }
   }
 }

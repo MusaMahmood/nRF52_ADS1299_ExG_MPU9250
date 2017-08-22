@@ -92,7 +92,7 @@ ble_mpu_t m_mpu;
 #define DEVICE_FIRMWARE_STRING "Version 13.1.0"
 ble_eeg_t m_eeg;
 static bool m_connected = false;
-#define SPI_SCLK_WRITE_REG 4
+#define SPI_SCLK_WRITE_REG 2
 #define SPI_SCLK_SAMPLING 8
 #endif
 
@@ -698,7 +698,7 @@ void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
 #if defined(APP_TIMER_SAMPLING) && APP_TIMER_SAMPLING == 1
   m_samples += 1;
 #endif
-  if (m_eeg.eeg_ch1_count == EEG_PACKET_LENGTH /*246*/) {
+  if (m_eeg.eeg_ch1_count == EEG_PACKET_LENGTH) {
     m_eeg.eeg_ch1_count = 0;
     ble_eeg_update_1ch_v2(&m_eeg);
   }
