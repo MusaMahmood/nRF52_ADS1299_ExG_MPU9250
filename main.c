@@ -110,7 +110,7 @@ static uint16_t m_samples;
 #endif
 #define APP_FEATURE_NOT_SUPPORTED BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2 /**< Reply when unsupported features are requested. */
 
-#define DEVICE_NAME "ExG 8kHz & MPU"    //"nRF52_EEG"         /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME "EMG 3CH 250Hz"    //"nRF52_EEG"         /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME "Potato Labs" /**< Manufacturer. Will be passed to Device Information Service. */
 #define APP_ADV_INTERVAL 300            /**< The advertising interval (in units of 0.625 ms. This value corresponds to 187.5 ms). */
 #define APP_ADV_TIMEOUT_IN_SECONDS 180  /**< The advertising timeout in units of seconds. */
@@ -279,9 +279,6 @@ static void on_yys_evt(ble_yy_service_t     * p_yy_service,
  */
 static void services_init(void) {
   ble_eeg_service_init(&m_eeg);
-  //#if (defined(MPU60x0) || defined(MPU9150) || defined(MPU9250) || defined(MPU9255))
-  ble_mpu_service_init(&m_mpu);
-  //#endif
   /**@Device Information Service:*/
   uint32_t err_code;
   ble_dis_init_t dis_init;
@@ -506,7 +503,6 @@ static void ble_evt_dispatch(ble_evt_t *p_ble_evt) {
   on_ble_evt(p_ble_evt);
   ble_advertising_on_ble_evt(p_ble_evt);
   nrf_ble_gatt_on_ble_evt(&m_gatt, p_ble_evt);
-
   ble_eeg_on_ble_evt(&m_eeg, p_ble_evt);
 #if (defined(MPU60x0) || defined(MPU9150) || defined(MPU9250) || defined(MPU9255))
   ble_mpu_on_ble_evt(&m_mpu, p_ble_evt);
@@ -693,14 +689,14 @@ void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action) {
   UNUSED_PARAMETER(pin);
   UNUSED_PARAMETER(action);
   if (m_connected) {
-    get_eeg_voltage_array_2ch(&m_eeg);
+    get_eeg_voltage_array_3ch(&m_eeg);
   }
 #if defined(APP_TIMER_SAMPLING) && APP_TIMER_SAMPLING == 1
   m_samples += 1;
 #endif
   if (m_eeg.eeg_ch1_count == EEG_PACKET_LENGTH) {
     m_eeg.eeg_ch1_count = 0;
-    ble_eeg_update_2ch(&m_eeg);
+    ble_eeg_update_3ch(&m_eeg);
   }
 }
 

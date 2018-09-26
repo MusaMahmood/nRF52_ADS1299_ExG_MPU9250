@@ -7,7 +7,7 @@
 // <h> nRF_BLE 
 
 #ifndef LEDS_ENABLE
-#define LEDS_ENABLE 0
+#define LEDS_ENABLE 1
 #endif
 
 //==========================================================
@@ -3717,7 +3717,7 @@
 // <e> NRF_LOG_ENABLED - nrf_log - Logging
 //==========================================================
 #ifndef NRF_LOG_ENABLED
-#define NRF_LOG_ENABLED 0 //Check NRF_LOG_BACKEND.. .RTT
+#define NRF_LOG_ENABLED 1 //Check NRF_LOG_BACKEND.. .RTT
 #endif
 #if NRF_LOG_ENABLED
 // <e> NRF_LOG_USES_COLORS - If enabled then ANSI escape code for colors is prefixed to every string
@@ -3919,7 +3919,7 @@
 // <e> NRF_LOG_BACKEND_SERIAL_USES_RTT - If enabled data is printed using RTT
 //==========================================================
 #ifndef NRF_LOG_BACKEND_SERIAL_USES_RTT
-#define NRF_LOG_BACKEND_SERIAL_USES_RTT 0
+#define NRF_LOG_BACKEND_SERIAL_USES_RTT 1
 #endif
 #if  NRF_LOG_BACKEND_SERIAL_USES_RTT
 // <o> NRF_LOG_BACKEND_RTT_OUTPUT_BUFFER_SIZE - RTT output buffer size. 
